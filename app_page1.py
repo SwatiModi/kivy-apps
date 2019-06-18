@@ -2,6 +2,7 @@ from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
 
 class ConnectPage(GridLayout):
 	def __init__(self,**kwargs):
@@ -20,6 +21,20 @@ class ConnectPage(GridLayout):
 		self.add_widget(Label(text = "Username : "))
 		self.username = TextInput(multiline = True)
 		self.add_widget(self.username)
+
+		self.submit = Button(text = 'Submit')
+		self.add_widget(Label())
+		self.submit.bind(on_press = self.submit_details)
+		self.add_widget(self.submit)
+
+	def submit_details(self,instance):
+		ip = self.ip.text
+		port = self.port.text
+		username = self.username.text
+		print(f'IP is {ip}, PORT is {port} for {username}') 
+
+		with open('prev_details.text','w') as f:
+			f.write(f'{ip},{port},{username}')
 
 class EpicApp(App):
     def build(self):
