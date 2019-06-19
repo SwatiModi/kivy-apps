@@ -3,6 +3,7 @@ from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.uix.screenmanager import ScreenManager, Screen
 import os
 
 class ConnectPage(GridLayout):
@@ -47,14 +48,47 @@ class ConnectPage(GridLayout):
 		ip = self.ip.text
 		port = self.port.text
 		username = self.username.text
-		print(f'IP is {ip}, PORT is {port} for {username}') 
 
 		with open('prev_details.txt','w') as f:
 			f.write(f'{ip},{port},{username}')
 
+		info = f'Attempting to join {ip}:{port} as {username}'
+		chat_app.infopage.update_info(info)        	# update the msg to be displayed on infopage
+
+		chat_app.screenmanager.current = 'Info'		# change screen of the app
+
+class InfoPage(GridLayout):
+	def __init__(self,**kwargs):
+		super().__init__(**kwargs)
+		self.cols = 1
+
+		self.message = Label(halign = 'center',valign = 'middle',font_size = 30)
+		self.message.bind(width = self.update_text)
+		self.add_widget(self.message)
+
+	def update_info(self,message):
+		self.message.text = message	
+
+	def update_text(self,*_):
+		self.message.text_size = (self.message.width*0.9, None)
+
+
 class EpicApp(App):
     def build(self):
-        return ConnectPage()
+        self.screenmanager = ScreenManager()
+
+        self.connectpage = ConnectPage()
+        self.screen = Screen(name ='Connect')
+        self.screen.add_widget(self.connectpage)
+        self.screenmanager.add_widget(self.screen)
+
+        self.infopage = InfoPage()
+        self.screen = Screen(name ='Info')
+        self.screen.add_widget(self.infopage)
+        self.screenmanager.add_widget(self.screen)
+
+        return self.screenmanager
 
 if __name__ == '__main__':
-	EpicApp().run()
+	chat_app =  EpicApp()		# create instance so we can use it for referencing stuff
+	chat_app.run()
